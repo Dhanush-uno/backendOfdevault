@@ -31,10 +31,22 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
+// DELETE snippet
 router.delete("/:id", protect, async (req, res) => {
-  await Snippet.findByIdAndDelete(req.params.id);
-  res.json({ msg: "Deleted" });
+  try {
+    const snippet = await Snippet.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user._id
+    });
+
+    if (!snippet) return res.status(404).json({ msg: "Snippet not found" });
+
+    res.json({ msg: "Snippet deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ msg: "Server error" });
+  }
 });
+
 
 
 module.exports = router;
