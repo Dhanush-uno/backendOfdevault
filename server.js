@@ -9,13 +9,26 @@ const snippetRoutes = require("./routes/snippet");
 const app = express();
 
 // CORS FIX → allow frontend URL
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://frontendpartdevault.vercel.app", // your Vercel frontend
+];
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://devaultversionvd.vercel.app"],
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 
 app.use(express.json());
 
