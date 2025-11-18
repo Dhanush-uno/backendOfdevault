@@ -6,22 +6,35 @@ const router = express.Router();
 
 // Create snippet
 router.post("/", protect, async (req, res) => {
-  const { title, code, language } = req.body;
+  try {
+    const { title, code } = req.body;
 
-  const snippet = await Snippet.create({
-    title,
-    code,
-    language,
-    userId: req.user._id,
-  });
+    const snippet = await Snippet.create({
+      title,
+      code,
+      userId: req.user._id,
+    });
 
-  res.json(snippet);
+    res.json(snippet);
+  } catch (err) {
+    res.status(500).json({ msg: "Failed to create snippet" });
+  }
 });
 
-// Fetch user's snippets
+// Get user snippets
 router.get("/", protect, async (req, res) => {
-  const snippets = await Snippet.find({ userId: req.user._id });
-  res.json(snippets);
+  try {
+    const snippets = await Snippet.find({ userId: req.user._id });
+    res.json(snippets);
+  } catch {
+    res.status(500).json({ msg: "Error fetching snippets" });
+  }
 });
+
+router.delete("/:id", protect, async (req, res) => {
+  await Snippet.findByIdAndDelete(req.params.id);
+  res.json({ msg: "Deleted" });
+});
+
 
 module.exports = router;
